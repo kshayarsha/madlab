@@ -1,0 +1,66 @@
+from turtle import Turtle
+class Paddle(Turtle):
+    def __init__(self,xc,yc):
+        super().__init__()
+        self.goto(xc,yc)
+        self.shape("square")
+        self.color("white")
+        self.shapesize(5, 1)
+        self.penup()
+        self.speed(0)
+
+    def up(self):
+        ny = 20
+        if self.ycor()+80<300:
+            self.goto(self.xcor(), self.ycor() + 20)
+
+    def bac(self):
+        ny = 20
+        if self.ycor()-80>-300:
+            self.goto(self.xcor(), self.ycor() - 20)
+
+from turtle import Turtle
+
+
+class Ball(Turtle):
+    def __init__(self):
+        super().__init__()
+        self.color('white')
+        self.shape('circle')
+        self.penup()
+
+    def move(self):
+        self.goto(self.xcor() + 5, self.ycor() + 5)
+
+    def bounce(self):
+        self.goto(self.xcor(), self.ycor() * -1)
+
+from turtle import *
+from paddle import Paddle
+from ball import Ball
+import time
+
+screen = Screen()
+screen.screensize(800, 600)
+screen.bgcolor("black")
+screen.title("pong")
+screen.tracer(0)
+t1 = Paddle(280, 0)
+t2 = Paddle(-280, 0)
+ball = Ball()
+
+screen.listen()
+screen.onkey(t1.up, "Up")
+screen.onkey(t1.back, "Down")
+screen.onkey(t2.up, "w")
+screen.onkey(t2.back, "s")
+
+on = True
+while on:
+    screen.update()
+    time.sleep(0.1)
+    ball.move()
+    if ball.ycor() > 300 or ball.ycor() < -300:
+        ball.bounce()
+
+screen.exitonclick()
