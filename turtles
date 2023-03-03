@@ -1,0 +1,77 @@
+from turtle import *
+import random
+import time
+
+col = ['red', 'orange', 'blue', 'violet', 'indigo', 'yellow', 'black']
+
+
+class Protage(Turtle):
+
+    def __init__(self):
+        super().__init__()
+        self.penup()
+        self.shape('turtle')
+        self.color('blue')
+        self.goto(0, -240)
+        self.setheading(90)
+
+    def up(self):
+        self.goto(self.xcor(), self.ycor() + 10)
+
+    def bac(self):
+        if (self.ycor() > -240):
+            self.goto(self.xcor(), self.ycor() - 10)
+
+    def lef(self):
+        if (protag.xcor() > -260):
+            self.goto(self.xcor() - 10, self.ycor())
+
+    def righ(self):
+        if protag.xcor() < 260:
+            self.goto(self.xcor() + 10, self.ycor())
+
+
+class Cars:
+    def __init__(self):
+        self.all = []
+
+    def create(self):
+        dice=random.randint(1,6)
+        if(dice==1):
+            cars = Turtle()
+            cars.shape('square')
+            cars.shapesize(1, 2)
+            cars.penup()
+            cars.color(random.choice(col))
+            cars.goto(310, random.randint(-200, 200))
+            self.all.append(cars)
+    def move(self):
+        for items in self.all:
+            items.goto(items.xcor()-20,items.ycor())
+
+screen = Screen()
+screen.title('turtle crossing game')
+screen.screensize(600, 600)
+screen.bgcolor('white')
+screen.tracer(0)
+protag = Protage()
+cars = Cars()
+
+screen.listen()
+screen.onkey(protag.up, 'Up')
+screen.onkey(protag.bac, 'Down')
+screen.onkey(protag.lef, 'Left')
+screen.onkey(protag.righ, 'Right')
+on = True
+while on:
+    screen.update()
+    time.sleep(0.1)
+    cars.create()
+    cars.move()
+    if protag.ycor() > 250:
+        protag.goto(protag.xcor(), protag.ycor() * -1)
+    for car in cars.all():
+        if protag.distance(car)<20:
+            on=False
+
+screen.exitonclick()
