@@ -3,7 +3,7 @@ import random
 import time
 
 col = ['red', 'orange', 'blue', 'violet', 'indigo', 'yellow', 'black']
-
+chance=[1]
 
 class Protage(Turtle):
 
@@ -34,10 +34,11 @@ class Protage(Turtle):
 class Cars:
     def __init__(self):
         self.all = []
+        self.x=6
 
     def create(self):
-        dice=random.randint(1,6)
-        if(dice==1):
+        dice=random.randint(1,self.x)
+        if(dice in chance):
             cars = Turtle()
             cars.shape('square')
             cars.shapesize(1, 2)
@@ -48,6 +49,22 @@ class Cars:
     def move(self):
         for items in self.all:
             items.goto(items.xcor()-20,items.ycor())
+    def hard(self):
+        self.x=self.x+1
+        chance.append(chance[0]+self.x-5)
+
+class Scoreboard(Turtle):
+    def __init__(self):
+        super().__init__()
+        self.hideturtle()
+        self.penup()
+        self.level=1
+        self.goto(-280,250)
+        self.write(f'level 1', align='center', font=('Arial','16','normal'))
+    def ink(self):
+        self.level+=1
+        self.clear()
+        self.write(f'level {sc.level}', align='center', font=('Arial','16','normal'))
 
 screen = Screen()
 screen.title('turtle crossing game')
@@ -56,6 +73,7 @@ screen.bgcolor('white')
 screen.tracer(0)
 protag = Protage()
 cars = Cars()
+sc=Scoreboard()
 
 screen.listen()
 screen.onkey(protag.up, 'Up')
@@ -70,7 +88,9 @@ while on:
     cars.move()
     if protag.ycor() > 250:
         protag.goto(protag.xcor(), protag.ycor() * -1)
-    for car in cars.all():
+        sc.ink()
+        cars.hard()
+    for car in cars.all:
         if protag.distance(car)<20:
             on=False
 
