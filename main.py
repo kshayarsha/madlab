@@ -1,93 +1,88 @@
 from tkinter import *
-from tkinter import messagebox
 
-import password
-from password import Password
-import pyperclip
-import json
-import os
+# Constants
+PINK = "#e2979c"
+RED = "#e7305b"
+GREEN = "#9bdeac"
+YELLOW = "#f7f5dd"
+FONT_NAME = "Courier"
+WORK_MIN = 25
+SHORT_BREAK_MIN = 5
+LONG_BREAK_MIN = 20
+reps = 0
+timer = None
+marks = ''
 
-
-def click(website=None, pasword=None):
-    newdat = {
-        webentry.get(): {
-            'email': userentry.get(),
-            'password': pasentry.get()
-        }
-    }
-    try:
-        with open('data.json', 'r') as data:
-            dat = json.load(data)
-    except FileNotFoundError:
-        with open('data.json', 'w') as datas:
-            json.dump(newdat, datas, indent=4)
-    else:
-        dat.update(newdat)
-
-        with open('data.json', 'w') as datfile:
-            json.dump(dat, datfile, indent=4)
-
-        if len(webentry.get()) == 0 or len(pasentry.get()) == 0:
-            messagebox.askokcancel(title='oops', message='You left a field entry, please fill it')
-        else:
-            choice = messagebox.askokcancel(title=webentry.get(),
-                                            message=f'is this correct \n Email: {userentry.get()} \n password: {pasentry.get()}')
-            if choice == 1:
-                webentry.delete(0, END)
-                userentry.delete(0, END)
-                userentry.insert(0, 'vedantarya.agrawal@gmail.com')
-                pasentry.delete(0, END)
-
-
-def make():
-    s = pa.makepass()
-    pyperclip.copy(s)
-    pasentry.insert(0, s)
-
-
-def findpas():
-    websit = webentry.get()
-    with open('data.json') as data_file:
-        dat = json.load(data_file)
-        if websit in dat.keys():
-            email = dat[websit]['email']
-            pasd = dat[websit]['password']
-            messagebox.showinfo(title=websit, message=f'Email={email}\n password={pasd}')
-        else:
-            messagebox.showinfo(title='website not found', message='Website does not exist')
-
-
-pa = Password()
+# UI setup
 window = Tk()
+window.title('Pomodoro')
+window.config(padx=100, pady=50, bg=YELLOW)
 
-window.config(padx=50, pady=20)
-window.title('Password Manager')
-canvas = Canvas(width=200, height=200, highlightthickness=0)
-logo = PhotoImage(file='logo.png')
-canvas.create_image(100, 100, image=logo)
-canvas.grid(row=0, column=1)
+canvas = Canvas(width=200, height=224, bg=YELLOW, highlightthickness=0)
+tom = PhotoImage(file='tomato.png')
+canvas.create_image(100, 112, image=tom)
+timertext = canvas.create_text(100, 130, text='00:00', fill='white', font=(FONT_NAME, '24', 'bold'))
+canvas.grid(row=1, column=1)
 
-web = Label(text='Website: ')
-web.grid(row=1, column=0)
-user = Label(window, text='E-mail/Username: ')
-user.grid(row=2, column=0)
-pas = Label(window, text='Password: ')
-pas.grid(row=3, column=0)
+check = Label(text='', fg=GREEN, bg=YELLOW)
+check.grid(row=3, column=1)
 
-webentry = Entry(width=21)
-webentry.grid(row=1, column=1)
-webentry.focus()
-userentry = Entry(width=35)
-userentry.grid(row=2, column=1, columnspan=2)
-userentry.insert(0, 'vedantarya.agrawal@gmail.com')
-pasentry = Entry(width=21)
-pasentry.grid(row=3, column=1)
 
-search = Button(text='Search', width=13, command=findpas)
-search.grid(row=1, column=2)
-gen = Button(text='Generate Password', command=make)
-gen.grid(row=3, column=2)
-ad = Button(text='Add', width=40, command=click)
-ad.grid(row=4, column=1)
+def countdown(count):
+    global reps
+    if count == 0:
+        if reps % 2 == 0 and reps < 10:
+            canvas.create_text(100, 100, text='Work', fill='white', font=(FONT_NAME, '24', 'bold'))
+            countdown(WORK_MIN)
+        elif reps % 2 == 1 and reps < 9:
+            canvas.create_text(100, 100, text='Short break', fill='white', font=(FONT_NAME, '24', 'bold'))
+            countdown(SHORT_BREAK_MIN * 60)
+        elif reps % 8 == 0:
+            canvas.create_text(100, 100, text='Long break', fill='white', font=(FONT_NAME, '24', 'bold'))
+            countdown(LONG_BREAK_MIN * 60)
+        reps += 1
+        print(reps)
+        if reps % 2 == 0:
+            global marks
+            marks = check.config(text='✔' * (reps // 2))
+    else:
+        x = count // 60
+        y = count % 60
+        x = str(x).zfill(2)
+        y = str(y).zfill(2)
+        clock = x + ':' + y
+        canvas.itemconfig(timertext, text=clock)
+        global timer
+        timer = window.after(1000, countdown, count - 1)
+
+
+def clicked():
+    global reps
+    if reps % 2 == 0 and reps < 10:
+        lab = canvas.create_text(100, 100, text='Work', fill='white', font=(FONT_NAME, '24', 'bold'))
+        countdown(15)
+    elif reps % 2 == 1 and reps < 9:
+        lab = canvas.create_text(100, 100, text='Short break', fill='white', font=(FONT_NAME, '24', 'bold'))
+        countdown(300)
+    elif reps % 8 == 0:
+        lab = canvas.create_text(100, 100, text='Long break', fill='white', font=(FONT_NAME, '24', 'bold'))
+        countdown(900)
+
+
+def clicker():
+    window.after_cancel(timer)
+    canvas.itemconfig(timertext, text='00:00')
+    marks = ''
+    global reps
+    reps = 0
+
+
+start = Button(text='start', highlightthickness=0, command=clicked)
+start.grid(row=2, column=0)
+
+reset = Button(text='reset', highlightthickness=0, command=clicker)
+reset.grid(row=2, column=2)
+
+check = Label(text='✔', fg=GREEN, bg=YELLOW)
 
 window.mainloop()
