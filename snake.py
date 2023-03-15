@@ -1,108 +1,46 @@
 from turtle import Turtle
+STARTING_POSITIONS = [(0, 0), (-20, 0), (-40, 0)]
+MOVE_DISTANCE = 20
+UP = 90
+DOWN = 270
+LEFT = 180
+RIGHT = 0
+
+
 class Snake:
+
     def __init__(self):
-        self.segments=[]
+        self.segments = []
         self.create_snake()
-        self.head=self.segments[0]
+        self.head = self.segments[0]
+
     def create_snake(self):
-        y=0
-        for x in range(0,3):
-          t=Turtle("square")
-          t.color('black')
-          t.penup()
-          t.goto(y,0)
-          y-=20
-          self.segments.append(t)
-    def gen(self):
-        t=Turtle("square")
-        t.color('black')
-        t.speed(0)
-        t.penup()
-        xc=self.segments[len(self.segments)-1].xcor()
-        yc=self.segments[len(self.segments)-1].ycor()
-        t.goto(xc,yc)
-        self.segments.append(t)
-    def moved(self):
-        for t in range(len(self.segments)-1,0,-1):
-          xc=self.segments[t-1].xcor()
-          yc=self.segments[t-1].ycor()
-          self.segments[t].goto(xc,yc)
-        self.head.forward(20)
+        for position in STARTING_POSITIONS:
+            new_segment = Turtle("square")
+            new_segment.color("white")
+            new_segment.penup()
+            new_segment.goto(position)
+            self.segments.append(new_segment)
+
+    def move(self):
+        for seg_num in range(len(self.segments) - 1, 0, -1):
+            new_x = self.segments[seg_num - 1].xcor()
+            new_y = self.segments[seg_num - 1].ycor()
+            self.segments[seg_num].goto(new_x, new_y)
+        self.head.forward(MOVE_DISTANCE)
 
     def up(self):
-        self.head.setheading(90)
+        if self.head.heading() != DOWN:
+            self.head.setheading(UP)
+
     def down(self):
-        self.head.setheading(270)
+        if self.head.heading() != UP:
+            self.head.setheading(DOWN)
+
     def left(self):
-        self.head.setheading(180)
+        if self.head.heading() != RIGHT:
+            self.head.setheading(LEFT)
+
     def right(self):
-        self.head.setheading(0)
-
-from turtle import *
-import random
-class Food(Turtle):
-
-  def __init__(self):
-    super().__init__()
-    self.shape('circle')
-    self.color('blue')
-    self.penup()
-    self.speed(0)
-    self.goto(random.randint(-275,275),random.randint(-275,275))
-
-  def refresh(self):
-     self.goto(random.randint(-275,275),random.randint(-275,275))
-
-class Scoreboard(Turtle):
-    def __init__(self):
-        super().__init__()
-        self.score=0
-        self.penup()
-        self.goto(0,270)
-        self.write(f'score:{self.score}', align="center", font=("Arial", 24, "normal"))
-        self.hideturtle()
-    def inc(self):
-        self.score+=1
-        self.clear()
-        self.write(f'score:{self.score}', align="center", font=("Arial", 24, "normal"))
-    def over(self):
-        self.goto(0,0)
-        self.write('game over', align="center", font=("Arial", 24, "normal"))
-
-from turtle import Screen
-import time
-
-screen=Screen()
-screen.setup(600,600)
-screen.bgcolor('white')
-screen.title('Snake Game')
-screen.tracer(0)
-snake=Snake()
-food=Food()
-sc=Scoreboard()
-screen.listen()
-screen.onkey(snake.up, "Up")
-screen.onkey(snake.down, "Down")
-screen.onkey(snake.left, "Left")
-screen.onkey(snake.right, "Right")
-
-on=True
-while on:
-  screen.update()
-  time.sleep(0.1)
-  snake.moved()
-
-  for segment in snake.segments[1:]:
-      if snake.head.distance(segment)<10:
-          on=False
-          sc.over()
-
-  if snake.head.distance(food)<15:
-      food.refresh()
-      sc.inc()
-      snake.gen()
-  if(snake.head.xcor()>300 or snake.head.ycor()>300 or snake.head.xcor()<-300 or snake.head.ycor()<-300):
-      sc.over()
-      on=False
-      
-screen.exitonclick()
+        if self.head.heading() != LEFT:
+            self.head.setheading(RIGHT)
